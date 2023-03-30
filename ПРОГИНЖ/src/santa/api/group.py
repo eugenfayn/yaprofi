@@ -1,5 +1,5 @@
-from fastapi import APIRouter
-from models.schema import FullGroup,Group,CreateGroup, CreateParticipant,Participant
+from fastapi import APIRouter, HTTPException
+from models.schema import FullGroup,Group,CreateGroup, Toss,CreateParticipant,Participant
 from typing import List
 from fastapi import Depends
 from db import get_session,Session
@@ -42,7 +42,7 @@ def change_group(id:int,group:CreateGroup,session:Session = Depends(get_session)
     session.commit()
     return new_gr
 
-@router.post('/{id}/participant',response_model=Participant)
+@router.post('/{id}/participant')
 def create_participant(id:int,participant:CreateParticipant,session:Session = Depends(get_session)):
     new_participant= tables.Participant(name=participant.name,wish=participant.wish,group_id=id)
     session.add(new_participant)
@@ -58,3 +58,14 @@ def delete_participant(groudpId:int,participantId:int,session:Session = Depends(
         session.commit()
         return "Deleted"
     return "Нет такого участника в этой группе"
+
+@router.post('/group/{id}/toss',response_model=Toss)
+def toss_party(id:int,session:Session = Depends(get_session)):
+    n = session.query(tables.Participant).count()
+    if n<3:
+       raise HTTPException(status_code=400, detail="Недостаточное количество участников для жеребьевки")
+    participants = session.query(tables.Participant).all()
+    for participant in participants:
+        participant['recipient']=n+1-participant['id']
+    participants = session.query(tables.Participant).all()
+    pass
