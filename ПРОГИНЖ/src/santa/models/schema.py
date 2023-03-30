@@ -5,9 +5,9 @@ from typing import List
 class Participant(BaseModel):
     id: int # идентификатор участника
     name: str # идентификатор группы
-    wish: str # пожелание участника
+    wish: str | None # пожелание участника
     recipient: int | None# айдишник того, кому будут дарить подарок
-    
+
 class Group(BaseModel):
     id: int # идентификатор группы
     name: str # название группы
@@ -35,5 +35,9 @@ class CreateGroup(BaseModel):
 class CreateGroupResponse(BaseModel):
     id: int # идентификатор группы
 
+class CreateParticipant(BaseModel):
+    name: str # идентификатор группы
+    wish: str | None # пожелание участника
+    recipient: int | None# айдишник того, кому будут дарить подарок
 
 # get/group/{id}
